@@ -1,6 +1,21 @@
+class NewPokemon{
+    constructor(
+        public readonly id: number,
+        public name: string,
+    ){}
+
+    scream(){
+        return `NO QUIEROOO  !!!`;
+    }
+    speak(){
+        return `No quiero hablar`;
+    }
+}
+
 const MyDecorator = () =>{
     return (target: Function) =>{
-        console.log('MyDecorator', target);
+        // console.log('MyDecorator', target);
+        return NewPokemon;
     }
 }
 
