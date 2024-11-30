@@ -1,26 +1,66 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { In, Repository } from 'typeorm';
+import { Product } from './entities/product.entity';
+import { UUID } from 'crypto';
+import { PaginationDto } from 'src/common/dtos/paginationDto';
 
 @Injectable()
 export class ProductsService {
-  create(createProductDto: CreateProductDto) {
-    return 'This action adds a new product';
+
+  private readonly logger = new Logger('ProductsService');
+
+  constructor(
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>
+  ){}
+
+  async create(createProductDto: CreateProductDto) {
+    try{
+      const product = this.productRepository.create(createProductDto);
+      await this.productRepository.save(product); 
+      return product;
+    }catch(err){
+      this.hanndleDBExceptions(err);
+    }
+
   }
 
-  findAll() {
-    return `This action returns all products`;
+  findAll(paginationDto: PaginationDto) {
+    const {limit = 10, offset = 0} = paginationDto;
+    return this.productRepository.find({
+      take: limit,
+      skip: offset
+    });
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} product`;
+  async findOne(id: string) {
+    const product = await this.productRepository.findOneBy({id});
+    if(!product)
+      throw new NotFoundException(`Product with id ${id} not found`);
+    return product;
   }
 
   update(id: number, updateProductDto: UpdateProductDto) {
     return `This action updates a #${id} product`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} product`;
+  async remove(id: string) {
+    try{
+      const product = await this.findOne(id);
+      await this.productRepository.remove(product);
+    }catch(err){
+      throw new BadRequestException('Product not found');
+    }
+  }
+
+  private hanndleDBExceptions(err: any){
+    if(err.code === '23505'){
+      throw new BadRequestException(err.detail);
+    }
+    this.logger.error(err);
+    throw new InternalServerErrorException('Error creating product');
   }
 }
