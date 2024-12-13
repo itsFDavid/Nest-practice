@@ -9,6 +9,7 @@ import { PaginationDto } from 'src/common/dtos/paginationDto';
 @Injectable()
 export class ProductsService {
 
+  // Add a logger instance to the ProductsService class
   private readonly logger = new Logger('ProductsService');
 
   constructor(
@@ -28,6 +29,7 @@ export class ProductsService {
   }
 
   findAll(paginationDto: PaginationDto) {
+    // Add a default value for the limit and offset query parameters
     const {limit = 10, offset = 0} = paginationDto;
     
     return this.productRepository
@@ -57,6 +59,7 @@ export class ProductsService {
     }
   }
 
+  // Add a private method to handle database exceptions
   private hanndleDBExceptions(err: any){
     if(err.code === '23505'){
       throw new BadRequestException(err.detail);
