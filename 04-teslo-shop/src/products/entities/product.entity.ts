@@ -35,6 +35,7 @@ export class Product {
     gender: string;
 
 
+    // this is a lifecycle hook that will be called before the entity is inserted into the database
     @BeforeInsert()
     checkSlugInsert(){
         if(!this.slug){
