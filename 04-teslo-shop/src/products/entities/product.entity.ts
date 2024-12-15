@@ -41,6 +41,7 @@ export class Product {
         if(!this.slug){
             this.slug = this.title;
         } 
+        // convert the slug to lowercase and replace spaces with underscores
         this.slug = this.slug
             .toLowerCase()
             .replaceAll(' ', '_')
