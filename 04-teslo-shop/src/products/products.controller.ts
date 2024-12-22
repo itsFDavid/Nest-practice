@@ -6,6 +6,7 @@ import { PaginationDto } from 'src/common/dtos/paginationDto';
 
 @Controller('products')
 export class ProductsController {
+  // this is a dependency injection of the ProductsService class
   constructor(private readonly productsService: ProductsService) {}
 
   @Post()
