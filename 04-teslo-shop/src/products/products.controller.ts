@@ -9,6 +9,7 @@ export class ProductsController {
   // this is a dependency injection of the ProductsService class
   constructor(private readonly productsService: ProductsService) {}
 
+  // this controller method will be called when a POST request is made to the /products endpoint
   @Post()
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
