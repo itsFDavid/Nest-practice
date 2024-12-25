@@ -15,6 +15,7 @@ export class ProductsController {
     return this.productsService.create(createProductDto);
   }
 
+  // this controller method will be called when a GET request is made to the /products endpoint
   @Get()
   findAll(@Query() paginationDto: PaginationDto) {
     return this.productsService.findAll(paginationDto);
