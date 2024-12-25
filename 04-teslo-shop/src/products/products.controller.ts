@@ -21,6 +21,7 @@ export class ProductsController {
     return this.productsService.findAll(paginationDto);
   }
 
+  // this controller method will be called when a GET request is made to the /products/:id endpoint
   @Get(':id')
   findOne(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.findOne(id);
