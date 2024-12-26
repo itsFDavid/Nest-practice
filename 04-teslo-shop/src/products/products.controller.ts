@@ -27,6 +27,7 @@ export class ProductsController {
     return this.productsService.findOne(id);
   }
 
+  // this controller method will be called when a PATCH request is made to the /products/:id endpoint
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateProductDto: UpdateProductDto) {
     return this.productsService.update(+id, updateProductDto);
