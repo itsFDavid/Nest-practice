@@ -22,9 +22,9 @@ export class ProductsController {
   }
 
   // this controller method will be called when a GET request is made to the /products/:id endpoint
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.productsService.findOne(id);
+  @Get(':term')
+  findOne(@Param('term') term: string) {
+    return this.productsService.findOne(term);
   }
 
   // this controller method will be called when a PATCH request is made to the /products/:id endpoint
