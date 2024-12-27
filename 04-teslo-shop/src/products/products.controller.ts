@@ -33,6 +33,7 @@ export class ProductsController {
     return this.productsService.update(+id, updateProductDto);
   }
 
+  // this controller method will be called when a DELETE request is made to the /products/:id endpoint
   @Delete(':id')
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
