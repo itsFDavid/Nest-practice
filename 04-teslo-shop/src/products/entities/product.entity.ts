@@ -63,6 +63,7 @@ export class Product {
             .replaceAll("'", '');
     }
 
+    // this is a lifecycle hook that will be called before the entity is updated in the database
     @BeforeUpdate()
     checkSlugUpdate(){
         // convert the slug to lowercase and replace spaces with underscores
