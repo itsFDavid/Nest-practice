@@ -24,7 +24,7 @@ export class ProductsController {
   // this controller method will be called when a GET request is made to the /products/:id endpoint
   @Get(':term')
   findOne(@Param('term') term: string) {
-    return this.productsService.findOne(term);
+    return this.productsService.findOnePlain(term);
   }
 
   // this controller method will be called when a PATCH request is made to the /products/:id endpoint
