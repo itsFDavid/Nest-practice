@@ -113,6 +113,7 @@ export class ProductsService {
     throw new InternalServerErrorException('Error creating product');
   }
 
+  // Add a method to find a product by ID and return a plain object
   async findOnePlain(id: string){
     const {images = [], ...product } = await this.findOne(id);
     return {
