@@ -78,7 +78,9 @@ export class ProductsService {
     return product;
   }
 
+  // Add a method to update a product
   async update(id: string, updateProductDto: UpdateProductDto) {
+    // Add a preload method to update a product
     const product = await this.productRepository.preload({
       id: id,
       ...updateProductDto,
@@ -87,6 +89,7 @@ export class ProductsService {
 
     if(!product) throw new NotFoundException('Product not found');
 
+    // Add a check to see if the product title is unique
     try{
       await this.productRepository.save(product);
       return product;
