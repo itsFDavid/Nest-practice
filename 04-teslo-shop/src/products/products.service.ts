@@ -56,19 +56,21 @@ export class ProductsService {
     }))
   }
 
+  // Add a method to find a product by term (id, title or slug)
   async findOne(term: string) {
     let product: Product;
-
+    // Check if the term is a UUID
     if(isUUID(term)){
       product = await this.productRepository.findOneBy({id: term});
     }else{
+      // Add a query builder to find a product by title or slug
       const queryBuilder = this.productRepository.createQueryBuilder('product');
       product = await queryBuilder
         .where('UPPER(title) = :title or slug = :slug', {
           title: term.toUpperCase(),
           slug: term.toLocaleLowerCase()
         })
-        .leftJoinAndSelect('product.images', 'images')
+        .leftJoinAndSelect('product.images', 'images') // Add a join to the images table
         .getOne();
     }
 
