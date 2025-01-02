@@ -41,7 +41,7 @@ export class Product {
     })
     tags: string[];
 
-
+    // this is a one-to-many relationship with the ProductImage entity
     @OneToMany(
         ()=> ProductImage,
         (productImage) => productImage.product,

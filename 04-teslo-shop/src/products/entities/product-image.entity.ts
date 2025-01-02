@@ -10,6 +10,7 @@ export class ProductImage{
     @Column('text')
     url: string;
 
+    // this is a many-to-one relationship with the Product entity
     @ManyToOne(
         () => Product,
         (product) => product.images,
