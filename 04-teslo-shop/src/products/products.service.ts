@@ -121,6 +121,7 @@ export class ProductsService {
   // Add a method to find a product by ID and return a plain object
   async findOnePlain(id: string){
     const {images = [], ...product } = await this.findOne(id);
+    // this return a plain object with the images urls
     return {
       ...product,
       images: images.map(image => image.url)
