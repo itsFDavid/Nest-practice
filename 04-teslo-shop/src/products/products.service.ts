@@ -100,6 +100,7 @@ export class ProductsService {
     }
   }
 
+  // this method will remove a product from the database
   async remove(id: string) {
     try{
       const product = await this.findOne(id);
