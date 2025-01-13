@@ -50,6 +50,7 @@ export class ProductsService {
         }
       });
 
+    // this return a plain object with the images urls
     return products.map( ({images, ...rest}) => ({
       ...rest,
       images: images.map(image => image.url)
