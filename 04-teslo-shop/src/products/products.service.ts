@@ -95,13 +95,27 @@ export class ProductsService {
     if(!product) throw new NotFoundException('Product not found');
     
     const queryRunner = this.dataSource.createQueryRunner();
-    
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+
     // Add a check to see if the product title is unique
     try{
-      await this.productRepository.save(product);
-      return product;
+
+      if( images){
+        await queryRunner.manager.delete(ProductImage, {product: {id}});
+        product.images = images.map( image => this.productImageRepository.create({url: image}));
+      }
+
+      await queryRunner.manager.save(product);
+      // await this.productRepository.save(product);
+      await queryRunner.commitTransaction();
+      return this.findOnePlain(id);
     }catch(err){
+      await queryRunner.rollbackTransaction();
       this.hanndleDBExceptions(err);
+    }finally{
+      await queryRunner.release();
     }
   }
 
