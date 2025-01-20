@@ -147,4 +147,17 @@ export class ProductsService {
       images: images.map(image => image.url)
     }
   }
+
+  async deleteAllProducts(){
+    const query = this.productRepository.createQueryBuilder('product');
+   try{
+    await query.
+      delete().
+      where({}).
+      execute();
+   }catch(err){
+      this.logger.error(err);
+      this.hanndleDBExceptions(err);
+    }
+  }
 }
