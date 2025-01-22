@@ -1,4 +1,5 @@
 /postgres
+/static
 
 # compiled output
 /dist
