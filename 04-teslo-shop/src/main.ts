@@ -18,7 +18,6 @@ async function bootstrap() {
     .setTitle('Teslo Restful API')
     .setDescription('The Teslo API is a RESTful API that allows you to interact with the Teslo application.')
     .setVersion('1.0')
-    .addTag('nestjs')
     .build();
   
   const document = SwaggerModule.createDocument(app, config)
