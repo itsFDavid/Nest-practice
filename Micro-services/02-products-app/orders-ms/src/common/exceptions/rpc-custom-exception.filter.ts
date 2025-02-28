@@ -1,4 +1,4 @@
-import { Catch, ArgumentsHost, ExceptionFilter } from "@nestjs/common";
+import { Catch, ArgumentsHost, ExceptionFilter, HttpStatus } from "@nestjs/common";
 
 import { RpcException } from "@nestjs/microservices";
 
@@ -11,7 +11,11 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse();
 
     const rpcError = exception.getError();
-
+    console.log(      
+      typeof rpcError === 'object' && 
+      'status' in rpcError && 
+      'message' in rpcError 
+    )
     if ( 
       typeof rpcError === 'object' && 
       'status' in rpcError && 
@@ -22,8 +26,8 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
     }
 
     response.status(401).json({
-      status: '400',
-      message: rpcError,
+      status: HttpStatus.UNAUTHORIZED,
+      message: 'Unauthorized'
     })
 
   }
