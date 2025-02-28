@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Inject, ParseUUIDPipe, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Inject, ParseUUIDPipe, Query, HttpStatus } from '@nestjs/common';
 import { SERVICES } from 'src/config';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { CreateOrderDto, PaginationOrderDto, StatusDto } from './dto';
@@ -45,5 +45,25 @@ export class OrdersController {
         .pipe(
           catchError(err => { throw new RpcException(err); })
         );
+  }
+
+  @Patch(':id')
+  changeStatus(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() statusDto: StatusDto
+  ) {
+    if (!statusDto.status) {
+      throw new RpcException({
+        message: 'status is required',
+        status: HttpStatus.BAD_REQUEST 
+      });
+    }
+    return this
+      .ordersClient.send('changeOrderStatus',
+        { id, status: statusDto.status}
+      )
+      .pipe(
+        catchError(err => { throw new RpcException(err); })
+      );
   }
 }
