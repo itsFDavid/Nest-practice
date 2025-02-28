@@ -19,6 +19,6 @@ export class CreateOrderDto {
 
   @IsOptional()
   @IsBoolean()
-  paid: Boolean = false;
+  paid: boolean = false;
 
 }
