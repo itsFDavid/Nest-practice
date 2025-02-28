@@ -7,21 +7,21 @@ import { ClientProxy } from '@nestjs/microservices';
 @Controller('orders')
 export class OrdersController {
   constructor(
-    @Inject(SERVICES.ORDER_SERVICE) private readonly ordersService: ClientProxy
+    @Inject(SERVICES.ORDER_SERVICE) private readonly ordersClient: ClientProxy
   ) {}
 
   @Post()
   create(@Body() createOrderDto: CreateOrderDto) {
-    return this.ordersService.send('createOrder', { createOrderDto });
+    return this.ordersClient.send('createOrder', { createOrderDto });
   }
 
   @Get()
   findAll() {
-    return this.ordersService.send('findAllOrders', {});
+    return this.ordersClient.send('findAllOrders', {});
   }
 
   @Get(':id')
   findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.ordersService.send('findOneOrder', { id });
+    return this.ordersClient.send('findOneOrder', { id });
   }
 }
