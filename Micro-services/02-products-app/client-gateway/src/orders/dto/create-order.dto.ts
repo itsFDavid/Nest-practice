@@ -1,14 +1,25 @@
-import { Type } from "class-transformer";
-import { IsNotEmpty, IsNumber, IsPositive, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsNumber, IsOptional, IsPositive } from "class-validator";
+import { OrderStatusList } from "../enum/order.enum";
+import { OrderStatus } from "../enum";
+
 
 export class CreateOrderDto {
-  @IsString()
-  @IsNotEmpty()
-  name: string;
-
-  @IsNotEmpty()
   @IsNumber()
   @IsPositive()
-  @Type( () => Number)
-  price: number;
+  totalAmount: number;
+
+  @IsNumber()
+  @IsPositive()
+  totalItems: number
+
+  @IsEnum( OrderStatusList, {
+    message: `Posible status values are ${OrderStatusList}`
+  } )
+  @IsOptional()
+  status: OrderStatus = OrderStatus.PENDING;
+
+  @IsOptional()
+  @IsBoolean()
+  paid: Boolean = false;
+
 }
