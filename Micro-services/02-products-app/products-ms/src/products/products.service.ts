@@ -97,14 +97,15 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
       where: { 
         id: {
           in: ids
-        }
+        },
+        available: true
       }
     });
 
     if(products.length !== ids.length) {
       throw new RpcException({
-        message: 'Invalid product ids',
-        status: HttpStatus.BAD_REQUEST
+        status: HttpStatus.BAD_REQUEST,
+        message: 'Invalid product ids'
       });
     }
 

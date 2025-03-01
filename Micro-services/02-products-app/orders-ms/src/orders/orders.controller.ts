@@ -1,5 +1,5 @@
 import { Controller, ParseUUIDPipe } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { MessagePattern, Payload, RpcException } from '@nestjs/microservices';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto, PaginationOrderDto } from './dto';
 import { ChangeOrderStatusDto } from './dto/change-order-status.dto';
@@ -11,7 +11,11 @@ export class OrdersController {
 
   @MessagePattern('createOrder')
   create(@Payload() createOrderDto: CreateOrderDto) {
-    return this.ordersService.create(createOrderDto);
+    try{
+      return this.ordersService.create(createOrderDto);
+    }catch(err){
+      throw new RpcException(err);
+    }
   }
 
   @MessagePattern('findAllOrders')
@@ -25,7 +29,7 @@ export class OrdersController {
   }
 
   @MessagePattern('changeOrderStatus')
-  changeOrderStatus(@Payload() changeOrderStatusDto: ChangeOrderStatusDto){
-    return this.ordersService.changeOrderStatus(changeOrderStatusDto);
+  async changeOrderStatus(@Payload() changeOrderStatusDto: ChangeOrderStatusDto){
+    return await this.ordersService.changeOrderStatus(changeOrderStatusDto);
   }
 }

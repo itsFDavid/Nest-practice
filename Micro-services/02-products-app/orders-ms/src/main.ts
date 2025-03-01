@@ -1,8 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { envs } from './config/envs';
+import { envs } from './config';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { RpcCustomExceptionFilter } from './common';
 
 async function bootstrap() {
   const logger = new Logger('OrdersMS-Main');
@@ -15,6 +16,9 @@ async function bootstrap() {
       }
     }
   );
+
+  app.useGlobalFilters( new RpcCustomExceptionFilter());
+
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,

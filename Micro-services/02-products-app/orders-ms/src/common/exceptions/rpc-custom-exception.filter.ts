@@ -25,7 +25,7 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
       return response.status(status).json(rpcError);
     }
 
-    response.status(401).json({
+    return response.status(401).json({
       status: HttpStatus.UNAUTHORIZED,
       message: 'Unauthorized'
     })
