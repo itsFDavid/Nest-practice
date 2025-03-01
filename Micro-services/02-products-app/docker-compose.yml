@@ -1,0 +1,62 @@
+services:
+
+  nats-server:
+    image: nats:latest
+    ports:
+      - 8222:8222
+
+  client-gateway:
+    build: ./client-gateway
+    ports:
+      - ${CLIENT_GATEWAY_PORT}:${CLIENT_GATEWAY_PORT}
+    volumes:
+      - ./client-gateway/src:/usr/src/app/src
+    command: pnpm run start:dev
+    environment:
+      - PORT=${CLIENT_GATEWAY_PORT}
+      - PRODUCTS_MICROSERVICE_HOST=${PRODUCTS_MICROSERVICE_HOST}
+      - PRODUCTS_MICROSERVICE_PORT=${PRODUCTS_MICROSERVICE_PORT}
+      - ORDERS_MICROSERVICE_HOST=${ORDERS_MICROSERVICE_HOST}
+      - ORDERS_MICROSERVICE_PORT=${ORDERS_MICROSERVICE_PORT}
+      - NATS_SERVERS=${NATS_SERVERS}
+    
+  products-ms:
+    build: ./products-ms
+    ports:
+      - ${PRODUCTS_MICROSERVICE_PORT}:${PRODUCTS_MICROSERVICE_PORT}
+    volumes:
+      - ./products-ms/src:/usr/src/app/src
+    command: pnpm run start:dev
+    environment:
+      - PORT=${PRODUCTS_MICROSERVICE_PORT}
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=${DATABASE_URL}
+
+  orders-ms:
+    build: ./orders-ms
+    ports:
+      - ${ORDERS_MICROSERVICE_PORT}:${ORDERS_MICROSERVICE_PORT}
+    volumes:
+      - ./orders-ms/src:/usr/src/app/src
+    command: pnpm run start:dev
+    environment:
+      - PORT=${ORDERS_MICROSERVICE_PORT}
+      - NATS_SERVERS=${NATS_SERVERS}
+      - PRODUCTS_MICROSERVICE_HOST=${PRODUCTS_MICROSERVICE_HOST}
+      - PRODUCTS_MICROSERVICE_PORT=${PRODUCTS_MICROSERVICE_PORT}
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/ordersdb?schema=public
+    depends_on:
+      - orders-db
+
+  orders-db:
+    container_name: orders-db
+    image: postgres:16.2
+    restart: always
+    volumes:
+      - ./orders-ms/postgres:/var/lib/postgresql/data
+    ports:
+      - ${POSTGRES_PORT}:${POSTGRES_PORT}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}

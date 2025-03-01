@@ -25,10 +25,13 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
       //      return response.status(status).json(rpcError);
 
       // TypeError: response.status is not a function
-      return response.send(rpcError);
+      return response.send({
+        status: status,
+        message: rpcError.message,
+      });
     }
 
-    return response.code(HttpStatus.UNAUTHORIZED).send({
+    return response.send({
       status: HttpStatus.UNAUTHORIZED,
       message: 'Unauthorized',
     });
