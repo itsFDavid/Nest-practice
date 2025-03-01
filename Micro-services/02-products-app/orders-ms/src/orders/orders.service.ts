@@ -32,9 +32,21 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
     try {
       const productsIds = createOrderDto.items.map((item) => item.productId);
 
+      // TODO: If the products ids not exists, throw an error
+      // check why this throw an error unhandled
       const products = await firstValueFrom(
         this.productClient.send({ cmd: 'validate_products' }, productsIds),
       );
+
+      const details = createOrderDto.items.map( orderItem => {
+        return {
+          price: products.find(
+            (product) => product.id === orderItem.productId,
+          ).price,
+          productId: orderItem.productId,
+          quantity: orderItem.quantity,
+        }
+      });
 
       // Calculate of the values of the products
       const totalAmount = createOrderDto.items.reduce((acc, orderItem) => {
@@ -55,13 +67,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
           totalItems,
           orderItem: {
             createMany: {
-              data: createOrderDto.items.map((orderItem) => ({
-                price: products.find(
-                  (product) => product.id === orderItem.productId,
-                ).price,
-                productId: orderItem.productId,
-                quantity: orderItem.quantity,
-              })),
+              data: details,
             },
           },
         },
