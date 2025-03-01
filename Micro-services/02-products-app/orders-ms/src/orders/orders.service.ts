@@ -17,7 +17,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger('OrdersService');
 
   constructor(
-    @Inject(SERVICES.PRODUCT_SERVICE)
+    @Inject(SERVICES.NATS_SERVICE)
     private readonly productClient: ClientProxy,
   ) {
     super();

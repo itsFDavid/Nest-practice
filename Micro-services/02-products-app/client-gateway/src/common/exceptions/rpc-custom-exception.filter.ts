@@ -4,11 +4,15 @@ import {
   ExceptionFilter,
   HttpStatus,
 } from '@nestjs/common';
+
 import { RpcException } from '@nestjs/microservices';
 
 @Catch(RpcException)
 export class RpcCustomExceptionFilter implements ExceptionFilter {
   catch(exception: RpcException, host: ArgumentsHost) {
+    const ctx = host.switchToHttp();
+    const response = ctx.getResponse();
+
     const rpcError = exception.getError();
 
     if (
@@ -16,13 +20,17 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
       'status' in rpcError &&
       'message' in rpcError
     ) {
-      return rpcError;
+      const status = isNaN(+rpcError.status) ? 400 : +rpcError.status;
+      // this said that the status is not a function
+      //      return response.status(status).json(rpcError);
+
+      // TypeError: response.status is not a function
+      return response.send(rpcError);
     }
 
-    return {
-      status: HttpStatus.INTERNAL_SERVER_ERROR,
-      message: 'Internal Server Error',
-      error: rpcError,
-    };
+    return response.code(HttpStatus.UNAUTHORIZED).send({
+      status: HttpStatus.UNAUTHORIZED,
+      message: 'Unauthorized',
+    });
   }
 }
