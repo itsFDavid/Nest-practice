@@ -9,9 +9,9 @@ async function bootstrap() {
   const app = await NestFactory.createMicroservice<MicroserviceOptions>(
     AppModule,
     {
-      transport: Transport.NATS,
+      transport: Transport.TCP,
       options:{
-        servers: envs.natsServers
+        port: envs.port
       }
     }
   );
