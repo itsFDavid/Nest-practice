@@ -1,64 +1,66 @@
-import { HttpStatus, Injectable, Logger, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  HttpStatus,
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaClient } from '@prisma/client';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { RpcException } from '@nestjs/microservices';
+import { ValidateProductsDto } from './dto/validate-products.dto';
 
 @Injectable()
-export class ProductsService extends PrismaClient implements OnModuleInit{
-
+export class ProductsService extends PrismaClient implements OnModuleInit {
   private readonly logger = new Logger(ProductsService.name);
 
   onModuleInit() {
-      this.$connect();
-      this.logger.log('Connected to the database');
+    this.$connect();
+    this.logger.log('Connected to the database');
   }
 
   create(createProductDto: CreateProductDto) {
-
     return this.product.create({
-      data: createProductDto
+      data: createProductDto,
     });
-
   }
 
   async findAll(paginationDto: PaginationDto) {
-    const {page, limit} = paginationDto;
-    
+    const { page, limit } = paginationDto;
+
     const totalPages = await this.product.count();
     const lastPage = Math.ceil(totalPages / limit);
 
     const take = limit;
     const skip = (page - 1) * limit;
-    
+
     return {
-      data: 
-      await this.product.findMany({
+      data: await this.product.findMany({
         take,
         skip,
-        where: { available: true }
+        where: { available: true },
       }),
-      meta:{
+      meta: {
         total: totalPages,
         page,
         lastPage,
-      }
-    }
+      },
+    };
   }
 
   async findOne(id: number) {
     const product = await this.product.findFirst({
-      where: { id, available: true }
+      where: { id, available: true },
     });
-    if(!product) {
+    if (!product) {
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: `Product with id ${id} not found`
+        message: `Product with id ${id} not found`,
       });
     }
     return product;
-
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
@@ -67,7 +69,7 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
 
     return await this.product.update({
       where: { id },
-      data
+      data,
     });
   }
 
@@ -80,33 +82,52 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
     const deletedProduct = await this.product.update({
       where: { id },
       data: {
-        available: false
-      }
+        available: false,
+      },
     });
 
     return HttpStatus.OK;
   }
 
-  async validateProducts(ids: number[]) {
+  async validateProducts(validateProductsDto: ValidateProductsDto) {
+    let { ids } = validateProductsDto;
+    const { available } = validateProductsDto;
+
+    // if available is false, return all products
+    if (!available) {
+      return await this.product.findMany({
+        where: { id: { in: ids } },
+      });
+    }
 
     ids = Array.from(new Set(ids));
 
     const products = await this.product.findMany({
-      where: { 
+      where: {
         id: {
-          in: ids
+          in: ids,
         },
-        available: true
-      }
+        available,
+      },
     });
 
-    if(products.length !== ids.length) {
+    const invalidatedIds = ids.filter(
+      (id) => !products.map((p) => p.id).includes(id),
+    );
+    
+    const wordProduct = this.pluralize('Product', invalidatedIds.length);
+
+    if (products.length !== ids.length) {
       throw new RpcException({
         status: HttpStatus.BAD_REQUEST,
-        message: 'Invalid product ids'
+        message: `${wordProduct} with ids ${invalidatedIds.join(', ')} not found`,
       });
     }
 
     return products;
+  }
+
+  private pluralize(word: string, count: number) {
+    return count === 1 ? word : word + 's';
   }
 }

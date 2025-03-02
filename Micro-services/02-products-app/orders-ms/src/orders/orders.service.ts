@@ -35,7 +35,7 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
       // TODO: If the products ids not exists, throw an error
       // check why this throw an error unhandled
       const products = await firstValueFrom(
-        this.productClient.send({ cmd: 'validate_products' }, productsIds),
+        this.productClient.send({ cmd: 'validate_products' }, { ids: productsIds }),
       );
 
       const details = createOrderDto.items.map( orderItem => {
@@ -119,32 +119,47 @@ export class OrdersService extends PrismaClient implements OnModuleInit {
   async findOne(id: string) {
     const order = await this.order.findFirst({
       where: { id },
-      include: { orderItem: {
-        select: {
-          price: true,
-          quantity: true,
-          productId: true
-        }
-      }}
+      include: {
+        orderItem: {
+          select: {
+            price: true,
+            quantity: true,
+            productId: true,
+          },
+        },
+      },
     });
+
     if (!order) {
       throw new RpcException({
         status: HttpStatus.NOT_FOUND,
-        message: 'Order not found',
+        message: `Order with id ${id} not found`,
       });
     }
 
-    const productsIds = order.orderItem.map((orderItem) => orderItem.productId);
-    const products = await firstValueFrom(
-      this.productClient.send({ cmd: 'validate_products' }, productsIds),
+    const productIds = order.orderItem.map((orderItem) => orderItem.productId);
+    const products: any[] = await firstValueFrom(
+      this.productClient.send({ cmd: 'validate_products' }, { ids: productIds, available: false }),
+    ).catch((err) => {
+      throw new RpcException(err);
+    });
+    this.logger.log(products, 'Products-OrderService-findOne');
+    const validateProducts = products.map((product) => product.id);
+    const invalidProducts = productIds.filter(
+      (productId) => !validateProducts.includes(productId),
     );
-
+    this.logger.log({
+      invalidProducts,
+      productIds,
+      validateProducts,
+    }, 'Order-OrderService-findOne');
     return {
       ...order,
-      orderItem: order.orderItem.map( (orderItem) => ({
+      orderItem: order.orderItem.map((orderItem) => ({
         ...orderItem,
-        name: products.find( product => product.id === orderItem.productId).name
-      }))
+        name: products.find((product) => product.id === orderItem.productId)
+          .name,
+      })),
     };
   }
 

@@ -4,6 +4,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { MessagePattern, Payload } from '@nestjs/microservices';
+import { ValidateProductsDto } from './dto/validate-products.dto';
 
 @Controller('products')
 export class ProductsController {
@@ -43,7 +44,7 @@ export class ProductsController {
   }
 
   @MessagePattern({ cmd: 'validate_products' })
-  validateProducts( @Payload() ids: number[]) {
-    return this.productsService.validateProducts(ids);
+  validateProducts( @Payload() validateProductsDto: ValidateProductsDto) {
+    return this.productsService.validateProducts(validateProductsDto);
   }
 }

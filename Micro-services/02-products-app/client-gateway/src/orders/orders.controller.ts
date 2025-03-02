@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe, Query, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Inject, ParseUUIDPipe, Query, Patch, Logger } from '@nestjs/common';
 
 
 import { SERVICES } from 'src/config';
@@ -15,8 +15,18 @@ export class OrdersController {
   ) {}
 
   @Post()
-  create(@Body() createOrderDto: CreateOrderDto) {
-    return this.client.send('createOrder', createOrderDto);
+  async create(@Body() createOrderDto: CreateOrderDto) {
+    try{
+      const order = await firstValueFrom(
+        this.client.send('createOrder', createOrderDto)
+      );
+      if(order.status === 400){
+        throw new RpcException(order);
+      }
+      return order;
+    }catch(error){
+      throw new RpcException(error.error);
+    }
   }
 
   @Get()
@@ -38,11 +48,13 @@ export class OrdersController {
       const order = await firstValueFrom(
         this.client.send('findOneOrder', { id })
       );
-
+      
+      if(order.status === 404) {
+        throw new RpcException(order);
+      }
       return order;
-
     } catch (error) {
-      throw new RpcException(error);
+      throw new RpcException(error.error);
     }
   }
 

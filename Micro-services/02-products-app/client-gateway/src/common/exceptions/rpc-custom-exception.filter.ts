@@ -1,4 +1,4 @@
-import { Catch, ArgumentsHost, ExceptionFilter, HttpStatus } from '@nestjs/common';
+import { Catch, ArgumentsHost, ExceptionFilter, HttpStatus, Logger } from '@nestjs/common';
 
 import { RpcException } from '@nestjs/microservices';
 
@@ -10,15 +10,14 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
 
     const rpcError = exception.getError();
 
-    if ( rpcError.toString().includes('Empty response') ) {
+    if ( rpcError?.toString().includes('Empty response') ) {
       return response.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         status: HttpStatus.INTERNAL_SERVER_ERROR,
         message: rpcError.toString().substring(0, rpcError.toString().indexOf('(') - 1)
       })
     }
 
-
-
+    // Logger.error(rpcError, 'RpcCustomExceptionFilter-Gateway');
     if (
       typeof rpcError === 'object' &&
       'status' in rpcError &&
