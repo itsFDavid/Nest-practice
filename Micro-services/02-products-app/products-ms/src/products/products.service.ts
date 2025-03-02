@@ -52,9 +52,10 @@ export class ProductsService extends PrismaClient implements OnModuleInit{
       where: { id, available: true }
     });
     if(!product) {
-      throw new RpcException(
-        new NotFoundException(`Product with id ${id} not found`)
-      );
+      throw new RpcException({
+        status: HttpStatus.NOT_FOUND,
+        message: `Product with id ${id} not found`
+      });
     }
     return product;
 
