@@ -27,12 +27,20 @@ export class ProductsController {
 
   @Post()
   createPoroduct(@Body() createProductDto: CreateProductDto) {
-    return this.client.send({ cmd: 'create_product' }, createProductDto);
+    try {
+      return this.client.send({ cmd: 'create_product' }, createProductDto);
+    } catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get()
   findAllProducts(@Query() paginationDto: PaginationDto) {
-    return this.client.send({ cmd: 'find_all_products' }, paginationDto);
+    try {
+      return this.client.send({ cmd: 'find_all_products' }, paginationDto);
+    } catch (error) {
+      throw new RpcException(error);
+    }
   }
 
   @Get(':id')
@@ -49,25 +57,29 @@ export class ProductsController {
   }
 
   @Delete(':id')
-  deleteProduct(@Param('id', ParseIntPipe) id: number) {
+  async deleteProduct(@Param('id', ParseIntPipe) id: number) {
     try {
-      return this.client.send({ cmd: 'delete_product' }, { id });
+      const product = await firstValueFrom(
+        this.client.send({ cmd: 'delete_product' }, { id }),
+      );
+      return product;
     } catch (error) {
       throw new RpcException(error);
     }
   }
 
   @Patch(':id')
-  updateProduct(
+  async updateProduct(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProductDto: UpdateProductDto,
   ) {
-    return this.client
-      .send({ cmd: 'update_product' }, { id, ...updateProductDto })
-      .pipe(
-        catchError((err) => {
-          throw new RpcException(err);
-        }),
+    try {
+      const product = await firstValueFrom(
+        this.client.send({ cmd: 'update_product' }, { id, ...updateProductDto }),
       );
+      return product;
+    } catch( error ) {
+      throw new RpcException(error);
+    }
   }
 }
