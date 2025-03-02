@@ -1,3 +1,6 @@
 [submodule "Micro-services/03-products-launcher"]
 	path = Micro-services/03-products-launcher
 	url = https://github.com/NestJs-Microservices-Practice/Products-launcher.git
+[submodule "Micro-services/02-products-app/client-gateway"]
+	path = Micro-services/02-products-app/client-gateway
+	url = https://github.com/NestJs-Microservices-Practice/Client-Gateway.git
