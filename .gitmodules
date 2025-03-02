@@ -4,3 +4,6 @@
 [submodule "Micro-services/02-products-app/client-gateway"]
 	path = Micro-services/02-products-app/client-gateway
 	url = https://github.com/NestJs-Microservices-Practice/Client-Gateway.git
+[submodule "Micro-services/02-products-app/orders-ms"]
+	path = Micro-services/02-products-app/orders-ms
+	url = https://github.com/NestJs-Microservices-Practice/Orders-Microservice.git
