@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { envs } from 'src/config/envs';
 import Stripe from 'stripe';
 import { PaymentSessionDto } from './dto/payment-session.dto';
+import { Request, Response } from 'express';
 
 @Injectable()
 export class PaymentsService {
@@ -36,4 +37,38 @@ export class PaymentsService {
     });
     return session;
   }
+
+  async stripeWebhook(req: Request, res: Response) {
+    const sig = req.headers['stripe-signature'];
+
+    let event: Stripe.Event;
+    // const endpointSecret = 'whsec_dcf7322f065ac7888632896f8038fe04ee22119542bf3a7a34b24b628f4fe04f';
+    const endpointSecret = "whsec_4xEqCeVk4vPgBNAqr3evlA1GrqDUwqGK";
+
+    try {
+      event = this.stripe.webhooks.constructEvent(
+        req['rawBody'],
+        sig,
+        endpointSecret
+      );
+    } catch (error) {
+      res.status(400).send(`Webhook Error: ${error.message}`);
+      return;
+    }
+
+    switch (event.type) {
+      case 'charge.succeeded':
+          // TODO: Llamar nuetsro microservicio de ordenes
+          console.log(event);
+        break;
+      default:
+        console.log(`Unhandled event type ${event.type}`);
+        break;
+    }
+
+    return res.status(200).json({
+      sig
+    });
+  }
+
 }
