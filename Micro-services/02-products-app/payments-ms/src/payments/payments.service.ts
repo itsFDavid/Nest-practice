@@ -9,7 +9,7 @@ export class PaymentsService {
   private readonly stripe = new Stripe(envs.stripeSecret);
 
   async createPaymentSession(paymentSessionDto: PaymentSessionDto) {
-    const { currency, items} = paymentSessionDto;
+    const { currency, items, orderId} = paymentSessionDto;
     
     const lineItems = items.map( items => {
       return {
@@ -18,7 +18,7 @@ export class PaymentsService {
           product_data: {
             name: items.name,
           },
-          unit_amount: Math.round(items.price * 100), // <- Esto seria 20.00
+          unit_amount: Math.round(items.price * 100), // <- Esto seria como si fuese 20 dolares, ya que stripe trabaja con centavos
         },
         quantity: items.quantity,
       }
@@ -27,12 +27,14 @@ export class PaymentsService {
     const session = this.stripe.checkout.sessions.create({
       // Colocar el id de la orden
       payment_intent_data: {
-        metadata: {}
+        metadata: {
+          order_id: orderId
+        }
       },
       line_items: lineItems,
       mode: 'payment',
-      success_url: 'http://localhost:3000/payments/success',
-      cancel_url: 'http://localhost:3000/payments/cancel',
+      success_url: envs.successUrl,
+      cancel_url: envs.cancelUrl,
 
     });
     return session;
@@ -42,8 +44,7 @@ export class PaymentsService {
     const sig = req.headers['stripe-signature'];
 
     let event: Stripe.Event;
-    // const endpointSecret = 'whsec_dcf7322f065ac7888632896f8038fe04ee22119542bf3a7a34b24b628f4fe04f';
-    const endpointSecret = "whsec_4xEqCeVk4vPgBNAqr3evlA1GrqDUwqGK";
+    const endpointSecret = envs.secretEndpoint;
 
     try {
       event = this.stripe.webhooks.constructEvent(
@@ -58,8 +59,12 @@ export class PaymentsService {
 
     switch (event.type) {
       case 'charge.succeeded':
+          const chargeSucceeded = event.data.object;
           // TODO: Llamar nuetsro microservicio de ordenes
-          console.log(event);
+          console.log({
+            metadata: chargeSucceeded.metadata,
+            orderId: chargeSucceeded.metadata.order_id,
+          });
         break;
       default:
         console.log(`Unhandled event type ${event.type}`);
