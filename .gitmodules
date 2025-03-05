@@ -10,3 +10,6 @@
 [submodule "Micro-services/02-products-app/products-ms"]
 	path = Micro-services/02-products-app/products-ms
 	url = https://github.com/NestJs-Microservices-Practice/Products-Microservice.git
+[submodule "Micro-services/02-products-app/payments-ms"]
+	path = Micro-services/02-products-app/payments-ms
+	url = https://github.com/NestJs-Microservices-Practice/Payments-microservice.git
