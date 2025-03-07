@@ -13,3 +13,7 @@
 [submodule "Micro-services/02-products-app/payments-ms"]
 	path = Micro-services/02-products-app/payments-ms
 	url = https://github.com/NestJs-Microservices-Practice/Payments-microservice.git
+
+[submodule "Micro-services/02-products-app/auth-ms"]
+	path = Micro-services/02-products-app/auth-ms
+	url = https://github.com/NestJs-Microservices-Practice/auth-ms.git
